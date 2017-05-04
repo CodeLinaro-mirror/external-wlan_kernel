@@ -2247,22 +2247,7 @@ out_free:
 	reg_free_request(reg_request);
 }
 
-static void notify_self_managed_wiphys(struct regulatory_request *request)
-{
-	struct cfg80211_registered_device *rdev;
-	struct wiphy *wiphy;
-
-	list_for_each_entry(rdev, &cfg80211_rdev_list, list) {
-		wiphy = &rdev->wiphy;
-		if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED &&
-		    request->initiator == NL80211_REGDOM_SET_BY_USER &&
-		    request->user_reg_hint_type ==
-				NL80211_USER_REG_HINT_CELL_BASE)
-			reg_call_notifier(wiphy, request);
-	}
-}
-
-static bool reg_only_self_managed_wiphys(void)
+static bool reg_only_self_managed_wiphys(struct regulatory_request *reg_request)
 {
 	struct cfg80211_registered_device *rdev;
 	struct wiphy *wiphy;
@@ -2272,10 +2257,12 @@ static bool reg_only_self_managed_wiphys(void)
 
 	list_for_each_entry(rdev, &cfg80211_rdev_list, list) {
 		wiphy = &rdev->wiphy;
-		if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED)
+		if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED) {
 			self_managed_found = true;
-		else
+			reg_call_notifier(wiphy, reg_request);
+		} else {
 			return false;
+		}
 	}
 
 	/* make sure at least one self-managed wiphy exists */
@@ -2313,8 +2300,7 @@ static void reg_process_pending_hints(void)
 
 	spin_unlock(&reg_requests_lock);
 
-	notify_self_managed_wiphys(reg_request);
-	if (reg_only_self_managed_wiphys()) {
+	if (reg_only_self_managed_wiphys(reg_request)) {
 		reg_free_request(reg_request);
 		return;
 	}
