@@ -130,3 +130,8 @@
 	qcom,in-chan-id = <17>;
 	qcom,mhi = <&mhi>;
 };
+
+&diag_mhi {
+	qcom,mhi = <&mhi>;
+	status = "ok";
+};
