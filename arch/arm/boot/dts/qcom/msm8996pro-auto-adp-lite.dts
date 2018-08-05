@@ -133,3 +133,9 @@
 
 	status = "okay";
 };
+
+&ipc_rtr_mhi {
+	qcom,out-chan-id = <16>;
+	qcom,in-chan-id = <17>;
+	qcom,mhi = <&mhi>;
+};
