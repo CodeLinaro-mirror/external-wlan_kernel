@@ -135,3 +135,7 @@
 	qcom,mhi = <&mhi>;
 	status = "ok";
 };
+
+&diag_hsic {
+	status = "ok";
+};
