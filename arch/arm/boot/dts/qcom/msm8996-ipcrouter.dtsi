@@ -55,4 +55,12 @@
 		qcom,xprt-linkid = <1>;
 		qcom,xprt-version = <3>;
 	};
+
+	qcom,ipc_router_external_modem_xprt {
+		compatible = "qcom,ipc_router_hsic_xprt";
+		qcom,ch-name = "ipc_bridge";
+		qcom,xprt-remote = "external-modem";
+		qcom,xprt-linkid = <1>;
+		qcom,xprt-version = <3>;
+	};
 };
