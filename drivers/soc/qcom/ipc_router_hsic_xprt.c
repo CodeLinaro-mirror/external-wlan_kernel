@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2015, 2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -25,7 +25,7 @@
 #include <linux/sched.h>
 #include <soc/qcom/subsystem_restart.h>
 
-#include <mach/ipc_bridge.h>
+#include <linux/usb/ipc_bridge.h>
 
 static int msm_ipc_router_hsic_xprt_debug_mask;
 module_param_named(debug_mask, msm_ipc_router_hsic_xprt_debug_mask,
