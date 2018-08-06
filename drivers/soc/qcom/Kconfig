@@ -297,7 +297,7 @@ config MSM_SYSMON_GLINK_COMM
 	  state-changes.
 
 config MSM_IPC_ROUTER_HSIC_XPRT
-	depends on USB_QCOM_IPC_BRIDGE
+	depends on USB_QCOM_DIAG_BRIDGE
 	depends on IPC_ROUTER
 	bool "MSM HSIC XPRT Layer"
 	help
