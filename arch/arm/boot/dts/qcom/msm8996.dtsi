@@ -1779,6 +1779,15 @@
 		status = "disabled";
 	};
 
+	mhi_uci: qcom,mhi-uci {
+		compatible = "qcom,mhi-uci";
+		qcom,mhi-uci-channels = <0 0xffff>,
+					<1 0x1000>;
+		qcom,mhi-uci-ctrlchan = <18>;
+		qcom,mhi = <&mhi>;
+		status = "disabled";
+	};
+
 	diag_mhi: qcom,diag@0 {
 		compatible = "qcom,diag-mhi";
 		status = "disabled";
