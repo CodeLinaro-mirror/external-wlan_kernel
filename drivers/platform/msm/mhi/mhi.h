@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -595,6 +595,7 @@ struct mhi_device_ctxt {
 	void (*status_cb)(enum MHI_CB_REASON, void *priv);
 	void *priv_data; /* private data for bus master */
 	struct completion cmd_complete;
+	unsigned int cmd_timeout;
 };
 
 struct mhi_device_driver {

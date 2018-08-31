@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -416,7 +416,7 @@ int mhi_open_channel(struct mhi_client_handle *client_handle)
 		goto error_completion;
 	}
 	ret_val = wait_for_completion_timeout(&cfg->cmd_complete,
-				msecs_to_jiffies(MHI_MAX_CMD_TIMEOUT));
+				msecs_to_jiffies(mhi_dev_ctxt->cmd_timeout));
 	if (!ret_val) {
 		mhi_log(mhi_dev_ctxt, MHI_MSG_ERROR,
 			"Failed to receive cmd completion for %d\n", chan);
@@ -652,7 +652,7 @@ void mhi_close_channel(struct mhi_client_handle *client_handle)
 		goto error_completion;
 	}
 	ret_val = wait_for_completion_timeout(&cfg->cmd_complete,
-				msecs_to_jiffies(MHI_MAX_CMD_TIMEOUT));
+				msecs_to_jiffies(mhi_dev_ctxt->cmd_timeout));
 	if (!ret_val) {
 		mhi_log(mhi_dev_ctxt, MHI_MSG_ERROR,
 			"Failed to receive cmd completion for %d\n", chan);

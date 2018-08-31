@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -475,6 +475,12 @@ static int mhi_plat_probe(struct platform_device *pdev)
 			"Failed to set mask for DMA ret %d\n", r);
 		return r;
 	}
+
+	r = of_property_read_bool(of_node, "qcom,emulation");
+	if (r)
+		mhi_dev_ctxt->cmd_timeout = MHI_MAX_CMD_TIMEOUT_EMULATION;
+	else
+		mhi_dev_ctxt->cmd_timeout = MHI_MAX_CMD_TIMEOUT;
 
 	mhi_dev_ctxt->parent = mhi_device_drv->parent;
 	mutex_lock(&mhi_device_drv->lock);

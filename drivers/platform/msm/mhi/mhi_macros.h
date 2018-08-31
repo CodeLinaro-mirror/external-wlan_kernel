@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -29,6 +29,7 @@
 #define MHI_EPID 4
 #define MHI_MAX_STATE_TRANSITION_TIMEOUT 5000
 #define MHI_MAX_CMD_TIMEOUT 500
+#define MHI_MAX_CMD_TIMEOUT_EMULATION 6000
 #define MHI_RPM_AUTOSUSPEND_TMR_VAL_MS 1000
 #define MAX_BUF_SIZE 32
 
