@@ -99,6 +99,7 @@
 
 &aliases {
 	mhi1 = &mhi;
+	mhi_uci0 = &mhi_uci;
 };
 
 &mhi {
@@ -133,6 +134,10 @@
 	mhi-event-cfg-1 = <0x80 0x1 0x1 0 1 0x31>;
 
 	status = "okay";
+};
+
+&mhi_uci {
+	status = "ok";
 };
 
 &ipc_rtr_mhi {
