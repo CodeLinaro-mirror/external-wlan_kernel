@@ -119,6 +119,7 @@
 	qcom,mhi-fw-image = "amss.bin";
 	qcom,mhi-max-sbl = <0x40000>;
 	qcom,mhi-sg-size = <0x80000>;
+	qcom,emulation;
 
 	/* mhi cntxt parameters */
 	mhi-chan-cfg-0 = <0x0 0x80 0x1 0x92>;
