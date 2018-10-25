@@ -2391,6 +2391,7 @@
 		pinctrl-1 = <&cnss_bootstrap_sleep>;
 		qcom,wlan-rc-num = <0>;
 		qcom,wlan-ramdump-dynamic = <0x200000>;
+		qcom,mhi = <&mhi>;
 
 		qcom,msm-bus,name = "msm-cnss";
 		qcom,msm-bus,num-cases = <4>;
