@@ -158,3 +158,7 @@
 &qcn_sdio {
 	status = "okay";
 };
+
+&sdio_bridge {
+	status = "okay";
+};

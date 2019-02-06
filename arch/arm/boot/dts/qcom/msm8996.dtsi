@@ -4043,6 +4043,11 @@
 		compatible = "qcom,qcn-sdio";
 		status = "disabled";
 	};
+
+	sdio_bridge: qcom,sdio-bridge {
+		compatible = "qcom,sdio-bridge";
+		status = "disabled";
+	};
 };
 
 &gdsc_venus {
