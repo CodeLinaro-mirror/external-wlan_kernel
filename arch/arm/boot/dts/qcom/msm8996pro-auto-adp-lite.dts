@@ -162,3 +162,8 @@
 &sdio_bridge {
 	status = "okay";
 };
+
+&pcie0 {
+	qcom,l1-supported;
+	qcom,l1ss-supported;
+};
