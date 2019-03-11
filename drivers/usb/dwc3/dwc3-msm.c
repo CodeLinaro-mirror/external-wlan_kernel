@@ -1679,6 +1679,7 @@ static void dwc3_msm_update_ref_clk(struct dwc3_msm *mdwc)
 
 	guctl = dwc3_msm_read_reg(mdwc->base, DWC3_GUCTL);
 	guctl &= ~DWC3_GUCTL_REFCLKPER;
+	guctl |= DWC3_GUCTL_NOEXTRDI;
 
 	/* GFLADJ register is used starting with revision 2.50a */
 	if (dwc3_msm_read_reg(mdwc->base, DWC3_GSNPSID) >= DWC3_REVISION_250A) {
