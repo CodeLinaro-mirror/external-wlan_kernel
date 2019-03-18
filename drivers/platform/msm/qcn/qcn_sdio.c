@@ -136,6 +136,24 @@ static void qcn_sdio_add_rw_req(struct qcn_sdio_rw_info *rw_req)
 	spin_unlock(&sdio_ctxt->lock_wait_q);
 }
 
+static int qcn_enable_async_irq(void)
+{
+	unsigned int num = 0;
+	int ret = 0;
+	u32 data = 0;
+
+	num = sdio_ctxt->func->num;
+	sdio_claim_host(sdio_ctxt->func);
+	sdio_ctxt->func->num = 0;
+	data = sdio_readb(sdio_ctxt->func, SDIO_CCCR_INTERRUPT_EXTENSION, NULL);
+	data |= SDIO_ENABLE_ASYNC_INTR;
+	sdio_writeb(sdio_ctxt->func, data, SDIO_CCCR_INTERRUPT_EXTENSION, &ret);
+	sdio_ctxt->func->num = num;
+	sdio_release_host(sdio_ctxt->func);
+
+	return ret;
+}
+
 static int qcn_send_io_abort(void)
 {
 	unsigned int num = 0;
@@ -574,6 +592,9 @@ int qcn_sdio_probe(struct sdio_func *func, const struct sdio_device_id *id)
 		sdio_release_host(sdio_ctxt->func);
 		goto err;
 	}
+
+	qcn_enable_async_irq();
+
 	if (qcn_read_meta_info()) {
 		pr_err("%s: Error: SDIO Config\n", __func__);
 		qcn_send_meta_info((u8)QCN_SDIO_SW_MODE_HEVENT, (u32)0);
