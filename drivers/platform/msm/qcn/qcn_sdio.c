@@ -136,6 +136,21 @@ static void qcn_sdio_add_rw_req(struct qcn_sdio_rw_info *rw_req)
 	spin_unlock(&sdio_ctxt->lock_wait_q);
 }
 
+static int qcn_send_io_abort(void)
+{
+	unsigned int num = 0;
+	int ret = 0;
+
+	num = sdio_ctxt->func->num;
+	sdio_claim_host(sdio_ctxt->func);
+	sdio_ctxt->func->num = 0;
+	sdio_writeb(sdio_ctxt->func, 0x1, SDIO_CCCR_ABORT, &ret);
+	sdio_ctxt->func->num = num;
+	sdio_release_host(sdio_ctxt->func);
+
+	return ret;
+}
+
 static int qcn_send_meta_info(u8 event, u32 data)
 {
 	int ret = 0;
@@ -431,6 +446,10 @@ static int qcn_sdio_send_buff(u32 cid, void *buff, int len)
 	sdio_claim_host(sdio_ctxt->func);
 	ret = sdio_writesb(sdio_ctxt->func,
 			(sdio_ctxt->tx_addr_base + (cid * (u32)4)), buff, len);
+
+	if (ret)
+		qcn_send_io_abort();
+
 	sdio_release_host(sdio_ctxt->func);
 
 	return ret;
@@ -443,6 +462,10 @@ static int qcn_sdio_recv_buff(u32 cid, void *buff, int len)
 	sdio_claim_host(sdio_ctxt->func);
 	ret = sdio_readsb(sdio_ctxt->func, buff,
 			(sdio_ctxt->rx_addr_base + (cid * (u32)4)), len);
+
+	if (ret)
+		qcn_send_io_abort();
+
 	sdio_release_host(sdio_ctxt->func);
 
 	return ret;
