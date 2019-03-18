@@ -1928,6 +1928,35 @@ static char *cnss_mhi_state_to_str(enum cnss_mhi_state mhi_state)
 	}
 };
 
+static void *cnss_pci_collect_remote_seg(struct cnss_pci_data *pci_priv,
+					 void *start_addr)
+{
+	struct cnss_plat_data *plat_priv = pci_priv->plat_priv;
+	struct cnss_dump_data *dump_data =
+		&plat_priv->ramdump_info_v2.dump_data;
+	struct cnss_dump_seg *dump_seg = start_addr;
+	struct cnss_fw_mem *fw_mem = plat_priv->fw_mem;
+	int count = 0, i;
+
+	cnss_pr_dbg("Collect remote segs\n");
+
+	for (i = 0; i < plat_priv->fw_mem_seg_len; i++)	{
+		dump_seg->address = fw_mem[i].pa;
+		dump_seg->v_address = fw_mem[i].va;
+		dump_seg->size = fw_mem[i].size;
+		dump_seg->type = MHI_RDDM_RD_SEGMENT + 1;
+		cnss_pr_dbg("seg-%d: address 0x%lx, v_address %pK, size 0x%lx\n",
+			    i, dump_seg->address, dump_seg->v_address,
+			    dump_seg->size);
+		dump_seg++;
+		count++;
+	}
+
+	dump_data->nentries += count;
+
+	return dump_seg;
+}
+
 static void *cnss_pci_collect_dump_seg(struct cnss_pci_data *pci_priv,
 				       enum mhi_rddm_segment type,
 				       void *start_addr)
@@ -1982,6 +2011,9 @@ void cnss_pci_collect_dump_info(struct cnss_pci_data *pci_priv)
 	start_addr = end_addr;
 	end_addr = cnss_pci_collect_dump_seg(pci_priv,
 					     MHI_RDDM_RD_SEGMENT, start_addr);
+
+	start_addr = end_addr;
+	end_addr = cnss_pci_collect_remote_seg(pci_priv, start_addr);
 
 	if (dump_data->nentries > 0)
 		plat_priv->ramdump_info_v2.dump_data_valid = true;
