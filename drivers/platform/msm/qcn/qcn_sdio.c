@@ -119,11 +119,13 @@ static int qcn_send_meta_info(u8 event, u32 data)
 
 	value =	META_INFO(event, data);
 
+	sdio_claim_host(sdio_ctxt->func);
 	for (i = 0; i < 4; i++) {
 		temp = (u8)((value >> (i * 8)) & 0x000000FF);
 		sdio_writeb(sdio_ctxt->func, temp, (SDIO_QCN_HRQ_PUSH + i),
-			    &ret);
+									&ret);
 	}
+	sdio_release_host(sdio_ctxt->func);
 
 	return ret;
 }
@@ -139,12 +141,14 @@ static int qcn_read_crq_info(void)
 
 	struct sdio_al_client_handle *chandle = NULL;
 
+	sdio_claim_host(sdio_ctxt->func);
 	for (i = 0; i < 4; i++) {
 		temp = sdio_readb(sdio_ctxt->func, (SDIO_QCN_CRQ_PULL + i),
 				  &ret);
 		temp = temp << (i * 8);
 		data |= temp;
 	}
+	sdio_release_host(sdio_ctxt->func);
 	if (ret)
 		return ret;
 
@@ -168,10 +172,12 @@ static int qcn_sdio_config(struct qcn_sdio_client_info *cinfo)
 	int ret = 0;
 	u32 data = 0;
 
+	sdio_claim_host(sdio_ctxt->func);
 	ret = sdio_set_block_size(sdio_ctxt->func,
 				  cinfo->cli_handle.block_size);
+
 	if (ret) {
-		pr_err("%s: SDIO:%d\n", __func__, __LINE__);
+		sdio_release_host(sdio_ctxt->func);
 		goto err;
 	}
 
@@ -179,7 +185,7 @@ static int qcn_sdio_config(struct qcn_sdio_client_info *cinfo)
 
 	sdio_writeb(sdio_ctxt->func, (u8)data, SDIO_QCN_CONFIG, &ret);
 	if (ret) {
-		pr_err("%s: SDIO:%d\n", __func__, __LINE__);
+		sdio_release_host(sdio_ctxt->func);
 		goto err;
 	}
 
@@ -191,8 +197,8 @@ static int qcn_sdio_config(struct qcn_sdio_client_info *cinfo)
 			SDIO_QCN_IRQ_CRQ_READY_MASK);
 
 	sdio_writeb(sdio_ctxt->func, (u8)data, SDIO_QCN_IRQ_EN, &ret);
+	sdio_release_host(sdio_ctxt->func);
 	if (ret) {
-		pr_err("%s: SDIO:%d\n", __func__, __LINE__);
 		goto err;
 	}
 
@@ -305,12 +311,17 @@ static int qcn_read_meta_info(void)
 	u32 data = 0;
 	u32 temp = 0;
 
+	sdio_claim_host(sdio_ctxt->func);
+
 	for (i = 0; i < 4; i++) {
 		temp = sdio_readb(sdio_ctxt->func, (SDIO_QCN_LOCAL_INFO + i),
 									&ret);
 		temp = temp << (i * 8);
 		data |= temp;
 	}
+
+	sdio_release_host(sdio_ctxt->func);
+
 	if (ret)
 		return ret;
 
@@ -349,30 +360,42 @@ static void qcn_sdio_irq_handler(struct sdio_func *func)
 {
 	u8 data = 0;
 
-	data = sdio_readb(sdio_ctxt->func, SDIO_QCN_IRQ_STATUS, NULL);
 
-	if (data & SDIO_QCN_IRQ_CRQ_READY_MASK)
+	sdio_claim_host(sdio_ctxt->func);
+	data = sdio_readb(sdio_ctxt->func, SDIO_QCN_IRQ_STATUS, NULL);
+	sdio_release_host(sdio_ctxt->func);
+
+	if (data & SDIO_QCN_IRQ_CRQ_READY_MASK) {
 		qcn_read_crq_info();
-	else if (data & SDIO_QCN_IRQ_LOCAL_MASK) {
-		sdio_writeb(sdio_ctxt->func, (u8)SDIO_QCN_IRQ_CLR_LOCAL_MASK,
-				SDIO_QCN_IRQ_CLR, NULL);
+	} else if (data & SDIO_QCN_IRQ_LOCAL_MASK) {
 		qcn_read_meta_info();
-	} else if (data & SDIO_QCN_IRQ_EN_SYS_ERR_MASK)
+	} else if (data & SDIO_QCN_IRQ_EN_SYS_ERR_MASK) {
+		sdio_claim_host(sdio_ctxt->func);
 		sdio_writeb(sdio_ctxt->func, (u8)SDIO_QCN_IRQ_CLR_SYS_ERR_MASK,
 				SDIO_QCN_IRQ_CLR, NULL);
-	else if (data & SDIO_QCN_IRQ_EN_UNDERFLOW_MASK)
+		sdio_release_host(sdio_ctxt->func);
+	} else if (data & SDIO_QCN_IRQ_EN_UNDERFLOW_MASK) {
+		sdio_claim_host(sdio_ctxt->func);
 		sdio_writeb(sdio_ctxt->func,
 					(u8)SDIO_QCN_IRQ_CLR_UNDERFLOW_MASK,
 					SDIO_QCN_IRQ_CLR, NULL);
-	else if (data & SDIO_QCN_IRQ_EN_OVERFLOW_MASK)
+		sdio_release_host(sdio_ctxt->func);
+	} else if (data & SDIO_QCN_IRQ_EN_OVERFLOW_MASK) {
+		sdio_claim_host(sdio_ctxt->func);
 		sdio_writeb(sdio_ctxt->func, (u8)SDIO_QCN_IRQ_CLR_OVERFLOW_MASK,
 				SDIO_QCN_IRQ_CLR, NULL);
-	else if (data & SDIO_QCN_IRQ_EN_CH_MISMATCH_MASK)
+		sdio_release_host(sdio_ctxt->func);
+	} else if (data & SDIO_QCN_IRQ_EN_CH_MISMATCH_MASK) {
+		sdio_claim_host(sdio_ctxt->func);
 		sdio_writeb(sdio_ctxt->func,
 					(u8)SDIO_QCN_IRQ_CLR_CH_MISMATCH_MASK,
 					SDIO_QCN_IRQ_CLR, NULL);
-	else
+		sdio_release_host(sdio_ctxt->func);
+	} else {
+		sdio_claim_host(sdio_ctxt->func);
 		sdio_writeb(sdio_ctxt->func, (u8)data, SDIO_QCN_IRQ_CLR, NULL);
+		sdio_release_host(sdio_ctxt->func);
+	}
 }
 
 static int qcn_sdio_send_buff(u32 cid, void *buff, int len)
@@ -685,9 +708,7 @@ struct sdio_al_client_handle *sdio_al_register_client(
 			(client_info->cli_handle.id == QCN_SDIO_CLI_ID_TTY)) ||
 			((sdio_ctxt->curr_sw_mode == QCN_SDIO_SW_MROM) &&
 			(client_info->cli_handle.id > QCN_SDIO_CLI_ID_TTY))) {
-			sdio_claim_host(sdio_ctxt->func);
 			qcn_sdio_config(client_info);
-			sdio_release_host(sdio_ctxt->func);
 			client_data->probe(&client_info->cli_handle);
 			qcn_send_meta_info(QCN_SDIO_DOORBELL_HEVENT, (u32)0);
 		}
