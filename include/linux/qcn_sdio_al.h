@@ -140,10 +140,10 @@ struct sdio_al_channel_data {
 	struct sdio_al_client_data *client_data;
 
 	void (*ul_xfer_cb)(struct sdio_al_client_handle *,
-			struct sdio_al_xfer_result *);
+			struct sdio_al_xfer_result *, void *ctxt);
 
 	void (*dl_xfer_cb)(struct sdio_al_client_handle *,
-			struct sdio_al_xfer_result *);
+			struct sdio_al_xfer_result *, void *ctxt);
 
 	void (*dl_data_avail_cb)(struct sdio_al_client_handle *,
 			unsigned int len);
@@ -244,7 +244,7 @@ void sdio_al_deregister_channel(struct sdio_al_channel_handle *ch_handle);
  */
 int sdio_al_queue_transfer_async(struct sdio_al_channel_handle *handle,
 		enum dma_data_direction dir,
-		void *buf, size_t len, int priority);
+		void *buf, size_t len, int priority, void *ctxt);
 
 /**
  * sdio_al_queue_transfer - Queue synchronous data transfer request

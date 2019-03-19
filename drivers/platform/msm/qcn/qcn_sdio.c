@@ -543,10 +543,10 @@ static void qcn_sdio_rw_work(struct work_struct *work)
 		result->xfer_len = rw_req->len;
 		if (rw_req->dir)
 			sdio_ctxt->ch[rw_req->cid]->ch_data.dl_xfer_cb(chandle,
-									result);
+							result, rw_req->ctxt);
 		else
 			sdio_ctxt->ch[rw_req->cid]->ch_data.ul_xfer_cb(chandle,
-									result);
+							result, rw_req->ctxt);
 		atomic_set(&sdio_ctxt->ch_status[rw_req->cid], 0);
 		qcn_sdio_free_rw_req(rw_req);
 	}
@@ -933,7 +933,7 @@ EXPORT_SYMBOL(sdio_al_queue_transfer);
 
 int sdio_al_queue_transfer_async(struct sdio_al_channel_handle *handle,
 		enum dma_data_direction dir,
-		void *buf, size_t len, int priority)
+		void *buf, size_t len, int priority, void *ctxt)
 {
 	struct qcn_sdio_rw_info *rw_req = NULL;
 	u32 cid = QCN_SDIO_CH_MAX;
@@ -959,6 +959,7 @@ int sdio_al_queue_transfer_async(struct sdio_al_channel_handle *handle,
 	rw_req->dir = dir;
 	rw_req->buf = buf;
 	rw_req->len = len;
+	rw_req->ctxt = ctxt;
 	qcn_sdio_add_rw_req(rw_req);
 	queue_work(sdio_ctxt->qcn_sdio_wq, &sdio_ctxt->sdio_rw_w);
 
