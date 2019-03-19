@@ -382,6 +382,9 @@ static int qcn_read_meta_info(void)
 		data |= temp;
 	}
 
+	sdio_writeb(sdio_ctxt->func, (u8)SDIO_QCN_IRQ_CLR_LOCAL_MASK,
+		    SDIO_QCN_IRQ_CLR, NULL);
+
 	sdio_release_host(sdio_ctxt->func);
 
 	if (ret)
@@ -598,11 +601,11 @@ int qcn_sdio_probe(struct sdio_func *func, const struct sdio_device_id *id)
 
 	qcn_enable_async_irq();
 
+	sdio_release_host(sdio_ctxt->func);
 	if (qcn_read_meta_info()) {
 		pr_err("%s: Error: SDIO Config\n", __func__);
 		qcn_send_meta_info((u8)QCN_SDIO_SW_MODE_HEVENT, (u32)0);
 	}
-	sdio_release_host(sdio_ctxt->func);
 
 	return 0;
 err:
