@@ -159,7 +159,15 @@
 	status = "okay";
 };
 
-&sdio_bridge {
+&sdio_bridge_tty {
+	status = "okay";
+};
+
+&sdio_bridge_ipc {
+	status = "okay";
+};
+
+&sdio_bridge_diag {
 	status = "okay";
 };
 

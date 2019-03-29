@@ -4048,6 +4048,30 @@
 		compatible = "qcom,sdio-bridge";
 		status = "disabled";
 	};
+
+	sdio_bridge_tty: qcom,sdio-bridge@0 {
+		compatible = "qcom,sdio-bridge";
+		qcom,client-id = <1>;
+		qcom,client-name = "SDIO_AL_CLIENT_TTY";
+		qcom,ch-name = "SDIO_AL_TTY_CH0";
+		status = "disabled";
+	};
+
+	sdio_bridge_ipc: qcom,sdio-bridge@1 {
+		compatible = "qcom,sdio-bridge";
+		qcom,client-id = <3>;
+		qcom,client-name = "SDIO_AL_CLIENT_QMI";
+		qcom,ch-name = "SDIO_AL_QMI_CH0";
+		status = "disabled";
+	};
+
+	sdio_bridge_diag: qcom,sdio-bridge@3 {
+		compatible = "qcom,sdio-bridge";
+		qcom,client-id = <4>;
+		qcom,client-name = "SDIO_AL_CLIENT_DIAG";
+		qcom,ch-name = "SDIO_AL_DIAG_CH0";
+		status = "disabled";
+	};
 };
 
 &gdsc_venus {
