@@ -221,6 +221,11 @@ static int qcn_read_crq_info(void)
 			len *= sdio_ctxt->func->cur_blksize;
 		temp = (data & SDIO_QCN_CRQ_PULL_UD_MASK) >>
 						SDIO_QCN_CRQ_PULL_UD_SHIFT;
+
+		if (!sdio_ctxt->ch[cid]) {
+			pr_err("TRACK: Client Id not initialized\n");
+			return -EINVAL;
+		}
 		switch (temp) {
 		case QCN_SDIO_CRQ_START:
 			sdio_ctxt->ch[cid]->crq_len = len;
@@ -411,23 +416,28 @@ static int qcn_read_meta_info(void)
 		break;
 	default:
 		if ((temp >= QCN_SDIO_META_START_CH0) &&
-				(temp < QCN_SDIO_META_START_CH1))
-			sdio_ctxt->ch[0]->ch_data.dl_meta_data_cb(
-				sdio_ctxt->ch[0]->chandle, data);
-		else if ((temp >= QCN_SDIO_META_START_CH1) &&
-				(temp < QCN_SDIO_META_START_CH2))
-			sdio_ctxt->ch[1]->ch_data.dl_meta_data_cb(
-				sdio_ctxt->ch[0]->chandle, data);
-		else if ((temp >= QCN_SDIO_META_START_CH2) &&
-				(temp < QCN_SDIO_META_START_CH3))
-			sdio_ctxt->ch[2]->ch_data.dl_meta_data_cb(
-				sdio_ctxt->ch[0]->chandle, data);
-		else if ((temp >= QCN_SDIO_META_START_CH3) &&
-				(temp < QCN_SDIO_META_END))
-			sdio_ctxt->ch[3]->ch_data.dl_meta_data_cb(
-				sdio_ctxt->ch[0]->chandle, data);
-		else
-			ret = -1;
+				(temp < QCN_SDIO_META_START_CH1)) {
+			if (sdio_ctxt->ch[0] && sdio_ctxt->ch[0]->ch_data.dl_meta_data_cb)
+				sdio_ctxt->ch[0]->ch_data.dl_meta_data_cb(
+					sdio_ctxt->ch[0]->chandle, data);
+		} else if ((temp >= QCN_SDIO_META_START_CH1) &&
+			(temp < QCN_SDIO_META_START_CH2)) {
+			if (sdio_ctxt->ch[1] && sdio_ctxt->ch[1]->ch_data.dl_meta_data_cb)
+				sdio_ctxt->ch[1]->ch_data.dl_meta_data_cb(
+					sdio_ctxt->ch[1]->chandle, data);
+		} else if ((temp >= QCN_SDIO_META_START_CH2) &&
+				(temp < QCN_SDIO_META_START_CH3)) {
+			if (sdio_ctxt->ch[2] && sdio_ctxt->ch[2]->ch_data.dl_meta_data_cb)
+				sdio_ctxt->ch[2]->ch_data.dl_meta_data_cb(
+					sdio_ctxt->ch[2]->chandle, data);
+		} else if ((temp >= QCN_SDIO_META_START_CH3) &&
+					(temp < QCN_SDIO_META_END)) {
+			if (sdio_ctxt->ch[3] && sdio_ctxt->ch[3]->ch_data.dl_meta_data_cb)
+				sdio_ctxt->ch[3]->ch_data.dl_meta_data_cb(
+					sdio_ctxt->ch[3]->chandle, data);
+		} else {
+			ret = -EINVAL;
+		}
 	}
 
 	return ret;
@@ -980,7 +990,7 @@ int sdio_al_queue_transfer_async(struct sdio_al_channel_handle *handle,
 EXPORT_SYMBOL(sdio_al_queue_transfer_async);
 
 int sdio_al_meta_transfer(struct sdio_al_channel_handle *handle,
-							unsigned int data)
+					unsigned int data, unsigned int trans)
 {
 	u32 cid = QCN_SDIO_CH_MAX;
 	u8 event = 0;

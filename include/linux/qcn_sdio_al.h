@@ -284,5 +284,5 @@ int sdio_al_queue_transfer(struct sdio_al_channel_handle *ch_handle,
  * @return 0 on success, non-zero in case of error
  */
 int sdio_al_meta_transfer(struct sdio_al_channel_handle *ch_handle,
-		unsigned int data);
+		unsigned int data, unsigned int trans);
 #endif /* _QCN_SDIO_AL_ */
