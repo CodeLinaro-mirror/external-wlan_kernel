@@ -803,7 +803,7 @@ static int msm_init_cm_dll(struct sdhci_host *host)
 			msm_host_offset->CORE_DLL_CONFIG);
 
 	/* For hs400es mode, no need to wait for core dll lock */
-	if (!(msm_host->enhanced_strobe &&
+	if (!(msm_host->enhanced_strobe && msm_host->mmc->card &&
 				mmc_card_strobe(msm_host->mmc->card))) {
 		wait_cnt = 50;
 		/* Wait until DLL_LOCK bit of DLL_STATUS register becomes '1' */
