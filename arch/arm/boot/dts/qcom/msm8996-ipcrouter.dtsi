@@ -63,4 +63,12 @@
 		qcom,xprt-linkid = <1>;
 		qcom,xprt-version = <3>;
 	};
+
+	qcom,ipc_router_external_modem_xprt3 {
+		compatible = "qcom,ipc_router_sdio_xprt";
+		qcom,ch-name = "ipc_bridge_sdio";
+		qcom,xprt-remote = "external-modem";
+		qcom,xprt-linkid = <1>;
+		qcom,xprt-version = <3>;
+	};
 };
