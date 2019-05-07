@@ -1798,6 +1798,11 @@
 		status = "disabled";
 	};
 
+	diag_sdio: qcom,diag@2 {
+		compatible = "qcom,diagfwd-sdio";
+		status = "disabled";
+	}
+;
         qcom,ipc-spinlock@740000 {
                 compatible = "qcom,ipc-spinlock-sfpb";
                 reg = <0x740000 0x8000>;

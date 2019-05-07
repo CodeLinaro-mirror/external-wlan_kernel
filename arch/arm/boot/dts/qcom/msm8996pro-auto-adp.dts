@@ -139,10 +139,14 @@
 
 &diag_mhi {
 	qcom,mhi = <&mhi>;
-	status = "ok";
+	status = "disabled";
 };
 
 &diag_hsic {
+	status = "disabled";
+};
+
+&diag_sdio {
 	status = "ok";
 };
 
