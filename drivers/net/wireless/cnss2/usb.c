@@ -373,11 +373,6 @@ static int cnss_usb_resume(struct usb_interface *interface)
 	return ret;
 }
 
-static int cnss_usb_reset_resume(struct usb_interface *interface)
-{
-	return 0;
-}
-
 static struct usb_device_id cnss_usb_id_table[] = {
 	{ USB_DEVICE_INTERFACE_NUMBER(QCN7605_USB_VENDOR_ID,
 				      QCN7605_COMPOSITE_PRODUCT_ID,
@@ -401,7 +396,7 @@ static struct usb_driver cnss_usb_driver = {
 	.disconnect = cnss_usb_remove,
 	.suspend    = cnss_usb_suspend,
 	.resume     = cnss_usb_resume,
-	.reset_resume = cnss_usb_reset_resume,
+	.reset_resume = cnss_usb_resume,
 	.supports_autosuspend = true,
 };
 
