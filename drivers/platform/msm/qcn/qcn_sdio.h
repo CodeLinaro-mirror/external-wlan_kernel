@@ -116,7 +116,7 @@ enum qcn_sdio_ch_id {
 };
 
 enum qcn_sdio_sw_mode {
-	QCN_SDIO_SW_RESET = 0,
+	QCN_SDIO_SW_INVALID = 0,
 	QCN_SDIO_SW_PBL,
 	QCN_SDIO_SW_SBL,
 	QCN_SDIO_SW_RDDM,

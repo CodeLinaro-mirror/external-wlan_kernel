@@ -211,12 +211,12 @@ err:
 	return ret;
 }
 
-
-int qcn_sw_mode_change(enum qcn_sdio_sw_mode mode)
+static int qcn_sw_mode_change(enum qcn_sdio_sw_mode mode)
 {
 	struct qcn_sdio_client_info *cinfo = NULL;
 	struct qcn_sdio_ch_info *chinfo = NULL;
 
+	pr_err("TRACK: %s[%d]\n", __func__, __LINE__);
 	if (!(mode) && !(mode < QCN_SDIO_SW_MAX))
 		return -EINVAL;
 
@@ -224,61 +224,31 @@ int qcn_sw_mode_change(enum qcn_sdio_sw_mode mode)
 		return 0;
 
 	if ((sdio_ctxt->curr_sw_mode == QCN_SDIO_SW_PBL) &&
-						(mode == QCN_SDIO_SW_SBL)) {
-		sdio_ctxt->curr_sw_mode = QCN_SDIO_SW_SBL;
-		qcn_send_meta_info(QCN_SDIO_BLK_SZ_HEVENT,
-						sdio_ctxt->func->cur_blksize);
-		qcn_send_meta_info(QCN_SDIO_DOORBELL_HEVENT, (u32)0);
+						(mode == QCN_SDIO_SW_SBL))
 		return 0;
-	}
 
 	switch (sdio_ctxt->curr_sw_mode) {
+	case QCN_SDIO_SW_INVALID:
 	case QCN_SDIO_SW_PBL:
 	case QCN_SDIO_SW_SBL:
 	case QCN_SDIO_SW_RDDM:
+		pr_err("TRACK: %s[%d]\n", __func__, __LINE__);
 		mutex_lock(&lock);
 		list_for_each_entry(cinfo, &cinfo_head, cli_list) {
-			while (!list_empty(&cinfo->ch_head)) {
-				chinfo = list_first_entry(&cinfo->ch_head,
-					      struct qcn_sdio_ch_info, ch_list);
-				sdio_al_deregister_channel(&chinfo->ch_handle);
-			}
-			cinfo->cli_handle.func = NULL;
-			cinfo->cli_data.remove(&cinfo->cli_handle);
-			if (((cinfo->cli_handle.id == QCN_SDIO_CLI_ID_WLAN) ||
-			     (cinfo->cli_handle.id == QCN_SDIO_CLI_ID_QMI) ||
-			     (cinfo->cli_handle.id == QCN_SDIO_CLI_ID_DIAG)) &&
-			     (mode == QCN_SDIO_SW_MROM)) {
-				qcn_send_meta_info((u8)QCN_SDIO_SW_MODE_HEVENT,
-						(u32)(mode | QCN_SDIO_MAJOR_VER
-						| QCN_SDIO_MINOR_VER));
-				cinfo->cli_handle.block_size =
-							QCN_SDIO_MROM_BLK_SZ;
-				cinfo->cli_handle.func = sdio_ctxt->func;
-				qcn_sdio_config(cinfo);
-				cinfo->cli_data.probe(&cinfo->cli_handle);
-				qcn_send_meta_info(QCN_SDIO_DOORBELL_HEVENT,
-									(u32)0);
-			}
-		}
-		mutex_unlock(&lock);
-		break;
-	case QCN_SDIO_SW_RESET:
-	case QCN_SDIO_SW_MROM:
-		mutex_lock(&lock);
-		list_for_each_entry(cinfo, &cinfo_head, cli_list) {
-			while (!list_empty(&cinfo->ch_head)) {
-				chinfo = list_first_entry(&cinfo->ch_head,
-					      struct qcn_sdio_ch_info, ch_list);
-				sdio_al_deregister_channel(&chinfo->ch_handle);
-			}
-			cinfo->cli_handle.func = NULL;
-			cinfo->cli_data.remove(&cinfo->cli_handle);
-			if ((cinfo->cli_handle.id == QCN_SDIO_CLI_ID_TTY) &&
-						   (mode <= QCN_SDIO_SW_MROM)) {
-				qcn_send_meta_info((u8)QCN_SDIO_SW_MODE_HEVENT,
-						(u32)(mode | QCN_SDIO_MAJOR_VER
-						| QCN_SDIO_MINOR_VER));
+			if (cinfo->cli_handle.id == QCN_SDIO_CLI_ID_TTY) {
+				while (!list_empty(&cinfo->ch_head)) {
+					chinfo = list_first_entry(
+							&cinfo->ch_head,
+							struct qcn_sdio_ch_info,
+							ch_list);
+
+					sdio_al_deregister_channel(
+							&chinfo->ch_handle);
+				}
+				cinfo->cli_handle.func = NULL;
+				cinfo->cli_data.remove(&cinfo->cli_handle);
+				msleep(100);
+				sdio_ctxt->curr_sw_mode = mode;
 				cinfo->cli_handle.block_size =
 							QCN_SDIO_TTY_BLK_SZ;
 				cinfo->cli_handle.func = sdio_ctxt->func;
@@ -286,15 +256,55 @@ int qcn_sw_mode_change(enum qcn_sdio_sw_mode mode)
 				cinfo->cli_data.probe(&cinfo->cli_handle);
 				qcn_send_meta_info(QCN_SDIO_DOORBELL_HEVENT,
 									(u32)0);
+
+				break;
+			}
+		}
+		mutex_unlock(&lock);
+		break;
+	case QCN_SDIO_SW_MROM:
+		pr_err("TRACK: %s[%d]\n", __func__, __LINE__);
+		mutex_lock(&lock);
+		list_for_each_entry(cinfo, &cinfo_head, cli_list) {
+			switch (cinfo->cli_handle.id) {
+			case QCN_SDIO_CLI_ID_TTY:
+				break;
+			case QCN_SDIO_CLI_ID_WLAN:
+			case QCN_SDIO_CLI_ID_QMI:
+			case QCN_SDIO_CLI_ID_DIAG:
+				while (!list_empty(&cinfo->ch_head)) {
+					chinfo = list_first_entry(
+							&cinfo->ch_head,
+							struct qcn_sdio_ch_info,
+							ch_list);
+					sdio_al_deregister_channel(
+							&chinfo->ch_handle);
+				}
+
+				cinfo->cli_handle.func = NULL;
+				cinfo->cli_data.remove(&cinfo->cli_handle);
+
+				cinfo->cli_handle.block_size =
+							QCN_SDIO_MROM_BLK_SZ;
+				cinfo->cli_handle.func = sdio_ctxt->func;
+				qcn_sdio_config(cinfo);
+				cinfo->cli_data.probe(&cinfo->cli_handle);
+				qcn_send_meta_info(QCN_SDIO_DOORBELL_HEVENT,
+									(u32)0);
+
+				break;
+			default:
+				pr_err("%s : invalid/unsupported client id %d\n"
+					, __func__, sdio_ctxt->curr_sw_mode);
 			}
 		}
 		mutex_unlock(&lock);
 		break;
 	default:
-		pr_err("Invalid mode\n");
+		pr_err("%s : invalid/unsupported software mode %d\n",
+				__func__, sdio_ctxt->curr_sw_mode);
 	}
 
-	sdio_ctxt->curr_sw_mode = mode;
 	return 0;
 }
 
