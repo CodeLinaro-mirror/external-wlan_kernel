@@ -215,27 +215,15 @@ static int qcn_read_crq_info(void)
 		cid = (u8)(data & SDIO_QCN_CRQ_PULL_CH_NUM_MASK);
 		cid -= sdio_ctxt->rx_cnum_base;
 		len = (data & SDIO_QCN_CRQ_PULL_BLK_CNT_MASK) >>
-			SDIO_QCN_CRQ_PULL_BLK_CNT_SHIFT;
+		       SDIO_QCN_CRQ_PULL_BLK_CNT_SHIFT;
 
 		if (data & SDIO_QCN_CRQ_PULL_BLK_MASK)
 			len *= sdio_ctxt->func->cur_blksize;
-		temp = (data & SDIO_QCN_CRQ_PULL_UD_MASK) >>
-						SDIO_QCN_CRQ_PULL_UD_SHIFT;
-		switch (temp) {
-		case QCN_SDIO_CRQ_START:
-			sdio_ctxt->ch[cid]->crq_len = len;
-			return ret;
-		case QCN_SDIO_CRQ_END:
-			sdio_ctxt->ch[cid]->crq_len += len;
-			break;
-		default:
-			sdio_ctxt->ch[cid]->crq_len = len;
-		}
 
 		chandle = sdio_ctxt->ch[cid]->chandle;
 		if (sdio_ctxt->ch[cid]->ch_data.dl_data_avail_cb)
 			sdio_ctxt->ch[cid]->ch_data.dl_data_avail_cb(chandle,
-					sdio_ctxt->ch[cid]->crq_len);
+								     len);
 	}
 
 	return ret;
