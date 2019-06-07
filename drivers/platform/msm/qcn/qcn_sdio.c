@@ -411,7 +411,7 @@ static int qcn_read_meta_info(void)
 			sdio_ctxt->ch[2]->ch_data.dl_meta_data_cb(
 				sdio_ctxt->ch[0]->chandle, data);
 		else if ((temp >= QCN_SDIO_META_START_CH3) &&
-				(temp < QCN_SDIO_META_END))
+					(temp < QCN_SDIO_META_END))
 			sdio_ctxt->ch[3]->ch_data.dl_meta_data_cb(
 				sdio_ctxt->ch[0]->chandle, data);
 		else
@@ -500,7 +500,7 @@ static void qcn_sdio_rw_work(struct work_struct *work)
 	int ret = 0;
 	struct qcn_sdio_rw_info *rw_req = NULL;
 	struct sdio_al_xfer_result *result = NULL;
-	struct sdio_al_channel_handle *ch_handle = NULL;
+	struct sdio_al_client_handle *chandle = NULL;
 
 	while (1) {
 		spin_lock(&sdio_ctxt->lock_wait_q);
@@ -536,17 +536,17 @@ static void qcn_sdio_rw_work(struct work_struct *work)
 				msleep(1);
 			}
 		} while (ret);
-		ch_handle = &sdio_ctxt->ch[rw_req->cid]->ch_handle;
+		chandle = sdio_ctxt->ch[rw_req->cid]->chandle;
 		result = &sdio_ctxt->ch[rw_req->cid]->result;
 		result->xfer_status = ret;
 		result->buf_addr = rw_req->buf;
 		result->xfer_len = rw_req->len;
 		if (rw_req->dir)
-			sdio_ctxt->ch[rw_req->cid]->ch_data.dl_xfer_cb(
-					ch_handle, result, rw_req->ctxt);
+			sdio_ctxt->ch[rw_req->cid]->ch_data.dl_xfer_cb(chandle,
+							result, rw_req->ctxt);
 		else
-			sdio_ctxt->ch[rw_req->cid]->ch_data.ul_xfer_cb(
-					ch_handle, result, rw_req->ctxt);
+			sdio_ctxt->ch[rw_req->cid]->ch_data.ul_xfer_cb(chandle,
+							result, rw_req->ctxt);
 		atomic_set(&sdio_ctxt->ch_status[rw_req->cid], 0);
 		qcn_sdio_free_rw_req(rw_req);
 	}
