@@ -217,9 +217,6 @@ static int qcn_read_crq_info(void)
 		len = (data & SDIO_QCN_CRQ_PULL_BLK_CNT_MASK) >>
 		       SDIO_QCN_CRQ_PULL_BLK_CNT_SHIFT;
 
-		if (data & SDIO_QCN_CRQ_PULL_BLK_MASK)
-			len *= sdio_ctxt->func->cur_blksize;
-
 		chandle = sdio_ctxt->ch[cid]->chandle;
 		if (sdio_ctxt->ch[cid]->ch_data.dl_data_avail_cb)
 			sdio_ctxt->ch[cid]->ch_data.dl_data_avail_cb(chandle,
