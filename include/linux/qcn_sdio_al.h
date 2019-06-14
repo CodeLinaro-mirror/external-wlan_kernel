@@ -104,20 +104,6 @@ struct sdio_al_client_data {
 };
 
 /**
- * sdio_al_channel_handle - channel handle of sdio_al
- *
- * @id: Channel id unique at the AL layer
- *
- * @client_data: Client to which this channel belongs
- *
- */
-struct sdio_al_channel_handle {
-	unsigned int channel_id;
-
-	struct sdio_al_channel_data *channel_data;
-};
-
-/**
  * sdio_al_channel_data - channel data of sdio_al
  *
  * @name: channel name, could be one of the following:
@@ -153,10 +139,10 @@ struct sdio_al_channel_data {
 
 	struct sdio_al_client_data *client_data;
 
-	void (*ul_xfer_cb)(struct sdio_al_channel_handle *,
+	void (*ul_xfer_cb)(struct sdio_al_client_handle *,
 			struct sdio_al_xfer_result *, void *ctxt);
 
-	void (*dl_xfer_cb)(struct sdio_al_channel_handle *,
+	void (*dl_xfer_cb)(struct sdio_al_client_handle *,
 			struct sdio_al_xfer_result *, void *ctxt);
 
 	void (*dl_data_avail_cb)(struct sdio_al_client_handle *,
@@ -164,6 +150,20 @@ struct sdio_al_channel_data {
 
 	void (*dl_meta_data_cb)(struct sdio_al_client_handle *,
 			unsigned int data);
+};
+
+/**
+ * sdio_al_channel_handle - channel handle of sdio_al
+ *
+ * @id: Channel id unique at the AL layer
+ *
+ * @client_data: Client to which this channel belongs
+ *
+ */
+struct sdio_al_channel_handle {
+	unsigned int channel_id;
+
+	struct sdio_al_channel_data *channel_data;
 };
 
 /**
