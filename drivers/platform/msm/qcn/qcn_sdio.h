@@ -28,9 +28,6 @@
 #define QCN_SDIO_DMA1_RX_CNUM		(0x14)
 #define QCN_SDIO_DMA1_TX_CNUM		(0x1C)
 
-#define QCN_SDIO_CRQ_START		(0x1)
-#define QCN_SDIO_CRQ_END		(0x2)
-
 #define QCN_SDIO_META_VER_0		(0)
 #define QCN_SDIO_META_VER_1		(1)
 
@@ -158,7 +155,6 @@ struct qcn_sdio_ch_info {
 	struct sdio_al_channel_data ch_data;
 	struct sdio_al_channel_handle ch_handle;
 	struct list_head ch_list;
-	u32 crq_len;
 };
 
 struct qcn_sdio_rw_info {
@@ -167,7 +163,6 @@ struct qcn_sdio_rw_info {
 	enum dma_data_direction dir;
 	void *buf;
 	size_t len;
-	void *ctxt;
 };
 
 #endif /* _QCN_SDIO_H_ */
