@@ -62,46 +62,20 @@ static atomic_t status;
 	QCN_SDIO_HMETA_DATA_SHFT) & QCN_SDIO_HMETA_DATA_BMSK))
 #endif
 
-#define	SDIO_RW_OFFSET		31
-#define	SDIO_RW_MASK		1
-#define	SDIO_FUNCTION_OFFSET	28
-#define	SDIO_FUNCTION_MASK	7
-#define	SDIO_MODE_OFFSET	27
-#define	SDIO_MODE_MASK		1
-#define	SDIO_OPCODE_OFFSET	26
-#define	SDIO_OPCODE_MASK	1
-#define	SDIO_ADDRESS_OFFSET	9
-#define	SDIO_ADDRESS_MASK	0x1FFFF
-#define	SDIO_RAW_OFFSET		27
-#define	SDIO_RAW_MASK		1
-#define	SDIO_STUFF_OFFSET1	26
-#define	SDIO_STUFF_OFFSET2	8
-#define	SDIO_STUFF_MASK		1
-#define	SDIO_BLOCKSZ_MASK	0x1FF
-#define	SDIO_DATA_MASK		0xFF
-
 static inline
 void qcn_sdio_set_cmd53_arg(u32 *arg, u8 rw, u8 func, u8 mode, u8 opcode,
 							u32 addr, u16 blksz)
 {
-	*arg = (((rw & SDIO_RW_MASK) << SDIO_RW_OFFSET) |
-		((func & SDIO_FUNCTION_MASK) << SDIO_FUNCTION_OFFSET) |
-		((mode & SDIO_MODE_MASK) << SDIO_MODE_OFFSET) |
-		((opcode & SDIO_OPCODE_MASK) << SDIO_OPCODE_OFFSET) |
-		((addr & SDIO_ADDRESS_MASK) << SDIO_ADDRESS_OFFSET) |
-		(blksz & SDIO_BLOCKSZ_MASK));
+	*arg = (((rw & 1) << 31) | ((func & 0x7) << 28) | ((mode & 1) << 27) |
+	       ((opcode & 1) << 26) | ((addr & 0x1FFFF) << 9) |
+	       (blksz & 0x1FF));
 }
 
 static inline
 void qcn_sdio_set_cmd52_arg(u32 *arg, u8 rw, u8 func, u8 raw, u32 addr, u8 val)
 {
-	*arg = ((rw & SDIO_RW_MASK) << SDIO_RW_OFFSET) |
-		((func & SDIO_FUNCTION_MASK) << SDIO_FUNCTION_OFFSET) |
-		((raw & SDIO_RAW_MASK) << SDIO_RAW_OFFSET) |
-		(SDIO_STUFF_MASK << SDIO_STUFF_OFFSET1) |
-		((addr & SDIO_ADDRESS_MASK) << SDIO_ADDRESS_OFFSET) |
-		(SDIO_STUFF_MASK << SDIO_STUFF_OFFSET2) |
-		(val & SDIO_DATA_MASK);
+	*arg = ((rw & 1) << 31) | ((func & 0x7) << 28) | ((raw & 1) << 27) |
+	       (1 << 26) | ((addr & 0x1FFFF) << 9) | (1 << 8) | (val & 0xFF);
 }
 
 static void qcn_sdio_free_rw_req(struct qcn_sdio_rw_info *rw_req)
