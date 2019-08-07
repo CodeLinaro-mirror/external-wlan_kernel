@@ -46,13 +46,6 @@ config SGI_MBCS
          If you have an SGI Altix with an attached SABrick
          say Y or M here, otherwise say N.
 
-config QCOM_SDIO_CLIENT
-	bool "QCOM_SDIO_CLIENT support"
-	depends on SDIO_QCN
-	default y
-	help
-	 Interface used for SDIO and sahara user spce application
-
 source "drivers/tty/serial/Kconfig"
 
 source "drivers/char/diag/Kconfig"
