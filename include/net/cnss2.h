@@ -123,6 +123,7 @@ struct cnss_sdio_wlan_driver {
 	void (*crash_shutdown)(struct sdio_func *);
 	int (*suspend)(struct device *);
 	int (*resume)(struct device *);
+	void (*update_status)(struct sdio_func *, uint32_t status);
 };
 
 enum cnss_driver_status {

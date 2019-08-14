@@ -323,6 +323,9 @@ static int cnss_sdio_remove(struct sdio_al_client_handle *pal_cli_handle)
 	if (sdio_info->ops &&
 	    test_bit(CNSS_DRIVER_PROBED, &plat_priv->driver_state)) {
 		cnss_pr_err("Triggering driver_ops remove\n");
+		sdio_info->ops->update_status(
+				sdio_info->al_client_handle->func,
+				CNSS_FW_DOWN);
 		sdio_info->ops->remove(sdio_info->al_client_handle->func);
 		clear_bit(CNSS_DRIVER_PROBED, &plat_priv->driver_state);
 	}
