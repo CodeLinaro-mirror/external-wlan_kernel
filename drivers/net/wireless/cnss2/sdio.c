@@ -43,7 +43,7 @@ int cnss_sdio_call_driver_probe(struct cnss_sdio_data *sdio_priv)
 	if (test_bit(CNSS_DRIVER_RECOVERY, &plat_priv->driver_state) &&
 	    test_bit(CNSS_DRIVER_PROBED, &plat_priv->driver_state)) {
 		ret = sdio_priv->ops->reinit(sdio_priv->al_client_handle->func,
-					     sdio_priv->device_id);
+					     &sdio_priv->device_id);
 		if (ret) {
 			cnss_pr_err("Failed to reinit host driver, err = %d\n",
 				    ret);
@@ -52,7 +52,7 @@ int cnss_sdio_call_driver_probe(struct cnss_sdio_data *sdio_priv)
 		clear_bit(CNSS_DRIVER_RECOVERY, &plat_priv->driver_state);
 	} else if (test_bit(CNSS_DRIVER_LOADING, &plat_priv->driver_state)) {
 		ret = sdio_priv->ops->probe(sdio_priv->al_client_handle->func,
-					    sdio_priv->device_id);
+					    &sdio_priv->device_id);
 		if (ret) {
 			cnss_pr_err("Failed to probe host driver, err = %d\n",
 				    ret);
@@ -288,15 +288,10 @@ static int cnss_sdio_probe(struct sdio_al_client_handle *pal_cli_handle)
 {
 	struct cnss_sdio_data *sdio_info = pal_cli_handle->client_priv;
 	struct cnss_plat_data *plat_priv = cnss_bus_dev_to_plat_priv(NULL);
-	struct sdio_device_id	*device_id;
 
-	device_id = devm_kzalloc(&plat_priv->plat_dev->dev,
-				 sizeof(struct sdio_device_id),
-				 GFP_KERNEL);
-	device_id->class = pal_cli_handle->func->class;
-	device_id->vendor = pal_cli_handle->func->vendor;
-	device_id->device = pal_cli_handle->func->device;
-	sdio_info->device_id = device_id;
+	sdio_info->device_id.class = pal_cli_handle->func->class;
+	sdio_info->device_id.vendor = pal_cli_handle->func->vendor;
+	sdio_info->device_id.device = pal_cli_handle->func->device;
 
 	if (pal_cli_handle->func)
 		cnss_pr_info("CNSS SDIO AL Probe for device Id: 0x%x\n",
@@ -331,7 +326,6 @@ static int cnss_sdio_remove(struct sdio_al_client_handle *pal_cli_handle)
 	}
 
 	cnss_unregister_subsys(plat_priv);
-	devm_kfree(&plat_priv->plat_dev->dev, (void *)sdio_info->device_id);
 
 	return 0;
 }

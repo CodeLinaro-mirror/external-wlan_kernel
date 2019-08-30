@@ -20,7 +20,7 @@ struct cnss_sdio_data {
 	struct cnss_plat_data *plat_priv;
 	struct sdio_al_client_handle *al_client_handle;
 	struct cnss_sdio_wlan_driver *ops;
-	struct sdio_device_id *device_id;
+	struct sdio_device_id device_id;
 	void *client_priv;
 };
 
